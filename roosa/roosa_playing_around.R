@@ -19,9 +19,10 @@ dat <- dat %>% separate(col = age, into = c("lower_age", "higher_age"), sep = "-
 
 dat$lower_age <-as.numeric(sub(".", "", dat$lower_age))
 dat$higher_age <- as.numeric(substr(dat$higher_age, 1, nchar(dat$higher_age)-1))
+dat$avg_age <- rowMeans(dat[,c("lower_age", "higher_age")])
 
 dat <- dat %>% mutate(diabetesMed = ifelse(diabetesMed == "No", 0,1))
-dat$diabetesMed
+
 
 
 
