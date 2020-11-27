@@ -4,13 +4,13 @@ title: "Hackathon"
 
 
 ```{r}
-data_set <- read.csv(file = 'synthetic_data.csv')
+data_set <- read.csv(file = 'synthetic_data.csv', na = 'No')
 head(data_set)
 summary(data_set) 
 medication_list <- c(colnames(data_set)[14:36])
 #print(medication_list)
 
-data_set_reformatted <- gather(data_set,medication,value,metformin:metformin.pioglitazone)
+data_set_reformatted <- gather(data_set,medication,value,metformin:metformin.pioglitazone, na.rm = TRUE)
    #  na.rm = FALSE, convert = FALSE 
 
 head(data_set_reformatted)  
@@ -18,10 +18,15 @@ head(data_set_reformatted)
 ```
 
 ```{r}
-# groupby the different medications 
-medications_dataframe <- data_set_reformatted %>% 
-  group_by(medication) %>% summarise(n())
+# count how many people take the different medications 
+medications_dataframe <- data_set_reformatted %>%  
+  group_by(medication) %>% summarise(n()) 
 
 medications_dataframe 
 
+
+#with(medications_dataframe, hist(medication))
+
+#MedicationsHistogram <- ggplot(data=medications_dataframe, aes(x=medications_dataframe$medication, y=medications_dataframe$n())) + geom_bar()
+#MedicationsHistogram
 ```
