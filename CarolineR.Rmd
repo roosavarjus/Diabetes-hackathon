@@ -4,13 +4,21 @@ title: "Hackathon"
 
 
 ```{r}
-data_set <- read.csv(file = 'synthetic_data.csv', na = 'No')
+#setwd("~/Diabetes-Hackathon/data/")
+data_set <- read.csv(file = 'data/synthetic_data.csv', na = 'No', stringsAsFactors = T)
 head(data_set)
 summary(data_set) 
 medication_list <- c(colnames(data_set)[14:36])
 #print(medication_list)
+data_set <- data_set %>% separate(col = age, into = c("lower_age", "higher_age"), sep = "-")
 
-data_set_reformatted <- gather(data_set,medication,value,metformin:metformin.pioglitazone, na.rm = TRUE)
+data_set$lower_age <-as.numeric(sub(".", "", data_set$lower_age))
+data_set$higher_age <- as.numeric(substr(data_set$higher_age, 1, nchar(data_set$higher_age)-1))
+data_set$avg_age <- rowMeans(data_set[, c("lower_age", "higher_age")])
+
+data_set <- data_set %>% mutate(diabetesMed = ifelse(diabetesMed == "No", 0,1))
+
+data_set_reformatted <- gather(data_set, medication, value, metformin:metformin.pioglitazone, na.rm = TRUE)
    #  na.rm = FALSE, convert = FALSE 
 
 head(data_set_reformatted)  
