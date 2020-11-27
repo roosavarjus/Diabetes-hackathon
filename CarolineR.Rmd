@@ -12,11 +12,11 @@ medication_list <- c(colnames(data_set)[14:36])
 #print(medication_list)
 data_set <- data_set %>% separate(col = age, into = c("lower_age", "higher_age"), sep = "-")
 
-data_set$lower_age <-as.numeric(sub(".", "", data_set$lower_age))
+data_set$lower_age <-as.numeric(sub(".", "", data_set$lower_age)) # split ages 
 data_set$higher_age <- as.numeric(substr(data_set$higher_age, 1, nchar(data_set$higher_age)-1))
-data_set$avg_age <- rowMeans(data_set[, c("lower_age", "higher_age")])
+data_set$avg_age <- rowMeans(data_set[, c("lower_age", "higher_age")]) # create column with the avg age
 
-data_set <- data_set %>% mutate(diabetesMed = ifelse(diabetesMed == "No", 0,1))
+data_set <- data_set %>% mutate(diabetesMed = ifelse(diabetesMed == "No", 0,1)) # modify diabetesMed to 0/1 instead of Yes/No
 
 data_set_reformatted <- gather(data_set, medication, value, metformin:metformin.pioglitazone, na.rm = TRUE)
    #  na.rm = FALSE, convert = FALSE 
@@ -37,4 +37,13 @@ medications_dataframe
 
 #MedicationsHistogram <- ggplot(data=medications_dataframe, aes(x=medications_dataframe$medication, y=medications_dataframe$n())) + geom_bar()
 #MedicationsHistogram
+
+
+```
+
+
+```{r}
+
+
+ 
 ```
