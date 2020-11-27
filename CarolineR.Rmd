@@ -42,7 +42,7 @@ medications_dataframe
 
 ```
 
-
+What are the most important factors for hospital readmission? 
 ```{r}
 
 early_readmission <- data_set_reformatted %>% filter(readmitted  == "<30")
@@ -55,3 +55,15 @@ ggplot(data_set_reformatted, aes(avg_age)) + geom_bar() + facet_grid(readmitted)
 
  
 ```
+
+
+Is the best cure insulin or a combination of drugs?  
+```{r}
+insulin_takers <- data_set %>% filter(insulin  == !NA)
+insulin_takers
+combination_takers <- data_set %>% filter(insulin = NA)
+
+combination_takers
+```
+
+
