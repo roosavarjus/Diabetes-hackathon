@@ -4,6 +4,8 @@ title: "Hackathon"
 
 
 ```{r}
+library(tidyverse)
+
 #setwd("~/Diabetes-Hackathon/data/")
 data_set <- read.csv(file = 'data/synthetic_data.csv', na = 'No', stringsAsFactors = T)
 head(data_set)
@@ -38,11 +40,17 @@ medications_dataframe
 #MedicationsHistogram <- ggplot(data=medications_dataframe, aes(x=medications_dataframe$medication, y=medications_dataframe$n())) + geom_bar()
 #MedicationsHistogram
 
-
 ```
 
 
 ```{r}
+
+early_readmission <- data_set_reformatted %>% filter(readmitted  == "<30")
+readmitted <- data_set_reformatted %>% filter(readmitted == "<30" | readmitted == ">30")
+
+# distributions of ages in different readmission times
+ggplot(data_set_reformatted, aes(avg_age)) + geom_bar() + facet_grid(readmitted)
+
 
 
  

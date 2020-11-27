@@ -8,7 +8,7 @@ This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute
 Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
 
 ```{r}
-install.packages("GGally")
+#install.packages("GGally")
 library(GGally)
 library(dplyr)
 library(ggplot2)
@@ -41,9 +41,11 @@ ggplot(data=diabetes, mapping = aes(x = max_glu_serum, y = time_in_hospital)) +
 ```
 Example of barplot and histogram with categories shown as colours 
 ```{r}
-ggplot(data = diabetes, mapping = aes(x = time_in_hospital, fill = readmitted)) +
-  geom_bar()
-diabetes%>%group_by(race)%>%ggplot()+geom_histogram(aes(x=time_in_hospital,fill=race))
+diabetes <- diabetes %>% filter(readmitted != "NO")
+ggplot(data = diabetes,
+       mapping = aes(x = time_in_hospital, fill = readmitted)) +
+  geom_bar(position = "fill")
+diabetes %>% group_by(race) %>% ggplot + geom_histogram(aes(x = time_in_hospital, fill = race))
 ```
 Plotting all the numerical values
 ```{r}
@@ -56,7 +58,7 @@ diabetes %>%
 ```
 Example of heatmap, in this case uninformative but may be useful later!
 ```{r}
-ggcorr(diabetes, nbreaks = 2)
+ggcorr(diabetes, nbreaks = 21)
 ```
 Example of splitting categorical and numeric data and PCA'ing it. 
 ```{r}
