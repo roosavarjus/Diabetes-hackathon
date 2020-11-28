@@ -32,28 +32,28 @@ The feature descriptions can be found in `data/feature_descriptions.csv`:
 - `number_diagnoses` - Number of diagnoses entered to the system
 - `max_glu_serum` - Indicates the range of the result or if the test was not taken. Values: >200, >300, normal, and none if not measured
 - `A1Cresult` - Indicates the range of the result or if the test was not taken. Values: >8 if the result was greater than 8%, >7 if the result was greater than 7% but less than 8%, normal if the result was less than 7%, and none if not measured
-- `metformin` - Medication
-- `repaglinide` - Medication
-- `nateglinide` - Medication
-- `chlorpropamide` - Medication
-- `glimepiride` - Medication
-- `acetohexamide` - Medication
-- `glipizide` - Medication
-- `glyburide` - Medication
-- `tolbutamide` - Medication
-- `pioglitazone` - Medication
-- `rosiglitazone` - Medication
-- `acarbose` - Medication
-- `miglitol` - Medication
-- `troglitazone` - Medication
-- `tolazamide` - Medication
-- `examide` - Medication
-- `citoglipton` - Medication
-- `insulin` - Medication
-- `glyburide-metformin` - Medication
-- `glipizide-metformin` - Medication
-- `glimepiride-pioglitazone` - Medication
-- `metformin-rosiglitazone` - Medication
+- `metformin` - Medication - decreases blood glucose levels by decreasing hepatic glucose production (gluconeogenesis)
+- `repaglinide` - Medication - lowers blood glucose levels by blocking ATP-dependent potassium channels in pancreatic beta cells, which in turn, stimulates insulin secretion
+- `nateglinide` - Medication - lowers blood glucose levels by stimulating insulin secretion from the pancreas. (Same as above)
+- `chlorpropamide` - Medication -  acts by stimulating beta cells of the pancreas to release insulin, bind to ATP-sensitive potassium channels on the pancreatic cell surface (sulfonylurea)
+- `glimepiride` - Medication - stimulating the secretion of insulin granules from pancreatic islet beta cells by blocking ATP-sensitive potassium channels (KATP channels) and causing depolarization of the beta cells. (sulfonylurea)
+- `acetohexamide` - Medication - same as above (sulfonylurea)
+- `glipizide` - Medication - same as above ( sulfonylurea)
+- `glyburide` - Medication - same as above (sulfonylurea)
+- `tolbutamide` - Medication - same as above ( sulfonylurea)
+- `pioglitazone` - Medication - is a selective agonist at peroxisome proliferator-activated receptor-gamma (PPAR??) in target tissues for insulin action such as adipose tissue
+- `rosiglitazone` - Medication - same as above
+- `acarbose` - Medication - acts as a competitive, reversible inhibitor of pancreatic alpha-amylase and membrane-bound intestinal alpha-glucoside hydrolase
+- `miglitol` - Medication - reversible inhibition of membrane-bound intestinal a-glucoside hydrolase enzymes
+- `troglitazone` - Medication - same as other glitazones
+- `tolazamide` - Medication - sulfonylurea
+- `examide` - Medication - diuretic
+- `citoglipton` - Medication -  is an oral dipeptidyl peptidase-4 (DPP-4) inhibitor used in conjunction with diet and exercise to improve glycemic control in patients with type 2 DM
+- `insulin` - Medication 
+- `glyburide-metformin` - Medication - glyburide belongs to sulfonylureas
+- `glipizide-metformin` - Medication - glipizide: sulfonylurea
+- `glimepiride-pioglitazone` - Medication - glimepiride: sulfonylurea
+- `metformin-rosiglitazone` - Medication - 
 - `metformin-pioglitazone` - Medication
 - `change` - Indicates if there was a change in diabetic medications (either dosage or generic name). Values: change and no change
 - `diabetesMed` - Indicates if there was any diabetic medication prescribed. Values: yes and no

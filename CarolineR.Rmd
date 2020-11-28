@@ -4,13 +4,23 @@ title: "Hackathon"
 
 
 ```{r}
-data_set <- read.csv(file = 'synthetic_data.csv')
+library(tidyverse)
+
+#setwd("~/Diabetes-Hackathon/data/")
+data_set <- read.csv(file = 'data/synthetic_data.csv', na = 'No', stringsAsFactors = T)
 head(data_set)
 summary(data_set) 
 medication_list <- c(colnames(data_set)[14:36])
 #print(medication_list)
+data_set <- data_set %>% separate(col = age, into = c("lower_age", "higher_age"), sep = "-")
 
-data_set_reformatted <- gather(data_set,medication,value,metformin:metformin.pioglitazone)
+data_set$lower_age <-as.numeric(sub(".", "", data_set$lower_age)) # split ages 
+data_set$higher_age <- as.numeric(substr(data_set$higher_age, 1, nchar(data_set$higher_age)-1))
+data_set$avg_age <- rowMeans(data_set[, c("lower_age", "higher_age")]) # create column with the avg age
+
+data_set <- data_set %>% mutate(diabetesMed = ifelse(diabetesMed == "No", 0,1)) # modify diabetesMed to 0/1 instead of Yes/No
+
+data_set_reformatted <- gather(data_set, medication, value, metformin:metformin.pioglitazone, na.rm = TRUE)
    #  na.rm = FALSE, convert = FALSE 
 
 head(data_set_reformatted)  
@@ -18,10 +28,33 @@ head(data_set_reformatted)
 ```
 
 ```{r}
-# groupby the different medications 
-medications_dataframe <- data_set_reformatted %>% 
-  group_by(medication) %>% summarise(n())
+# count how many people take the different medications 
+medications_dataframe <- data_set_reformatted %>%  
+  group_by(medication) %>% summarise(n()) 
 
 medications_dataframe 
 
+
+#with(medications_dataframe, hist(medication))
+
+#MedicationsHistogram <- ggplot(data=medications_dataframe, aes(x=medications_dataframe$medication, y=medications_dataframe$n())) + geom_bar()
+#MedicationsHistogram
+
+```
+
+
+```{r}
+
+early_readmission <- data_set_reformatted %>% filter(readmitted  == "<30")
+readmitted_data <- data_set_reformatted %>% filter(readmitted == "<30" | readmitted == ">30")
+
+# distributions of ages in different readmission times
+ggplot(glucose_in_serum, aes(lower_age, fill = max_glu_serum)) + geom_bar(position = "dodge") +
+  scale_x_continuous()
+
+glucose_in_serum <- data_set_reformatted %>% filter(max_glu_serum == ">200" | max_glu_serum == ">300" | max_glu_serum == "Norm")
+
+
+
+ 
 ```
