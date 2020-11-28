@@ -25,7 +25,7 @@ data_set_reformatted <- gather(data_set, medication, value, metformin:metformin.
 
 head(data_set_reformatted)  
 
-data_set_reformatted$value_numeric <- as.numeric(as.factor(data_set_reformatted$value))
+data_set_reformatted$value_numeric <- as.numeric(as.factor(data_set_reformatted))
                                                             
 
 ```
@@ -63,6 +63,7 @@ glucose_in_serum <- data_set_reformatted %>% filter(max_glu_serum == ">200" | ma
 ```
 
 ```{r}
+# NOT READY, NOT NECESSARILY NEEDED EITHER
 cluster_by_var <- function(dataset = data_set_reformatted, cluster_var, vec_of_features){
   data <- dataset %>% select(cluster_var, vec_of_features)
   data[is.na(data)] <- 0
@@ -79,6 +80,9 @@ cluster_by_var(dataset = data_set, cluster_var = "avg_age", vec_of_features = me
 
 ```
 
+```{r}
 
+
+```
 
 
