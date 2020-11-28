@@ -7,8 +7,9 @@ title: "Hackathon"
 library(tidyverse)
 
 setwd("C:/Users/roosa/Documents/Diabetes-hackathon/data")
-real_data <- read.csv("data/real_data.csv", stringsAsFactors =T)
-data_set <- read.csv(file = 'data/synthetic_data.csv', na = 'No', stringsAsFactors = T)
+real_data <- read.csv("data/real_data.csv", stringsAsFactors =T, na.strings =  "NA")
+data_set <- read.csv(file = 'data/synthetic_data.csv', stringsAsFactors = T, na.strings = "NA")
+#data_set <- data_set[,-c(19,27,29,30,35,36)]
 head(data_set)
 summary(data_set) 
 medication_list <- c(colnames(data_set)[14:36])
@@ -19,7 +20,8 @@ data_set$lower_age <-as.numeric(sub(".", "", data_set$lower_age)) # split ages
 data_set$higher_age <- as.numeric(substr(data_set$higher_age, 1, nchar(data_set$higher_age)-1))
 data_set$avg_age <- rowMeans(data_set[, c("lower_age", "higher_age")]) # create column with the avg age
 
-data_set <- data_set %>% mutate(diabetesMed = ifelse(diabetesMed == "No", 0,1)) # modify diabetesMed to 0/1 instead of Yes/No
+#data_set <- data_set %>% mutate(diabetesMed = ifelse(diabetesMed == "No", 0,1)) # modify diabetesMed to 0/1 instead of Yes/No
+is.na(data_set$diabetesMed) <- 0
 
 data_set_reformatted <- gather(data_set, medication, value, metformin:metformin.pioglitazone, na.rm = TRUE)
    #  na.rm = FALSE, convert = FALSE 
@@ -33,6 +35,7 @@ data_set_reformatted$value_numeric <- as.numeric(as.factor(data_set_reformatted)
 
 ```{r}
 real_data <- read.csv("data/real_data.csv", stringsAsFactors =T)
+# real_data <- real_data[,-c(27,29,30,34,35,36)]
 
 real_data <- real_data %>% separate(col = age, into = c("lower_age", "higher_age"), sep = "-")
 
@@ -41,6 +44,19 @@ real_data$higher_age <- as.numeric(substr(real_data$higher_age, 1, nchar(real_da
 real_data$avg_age <- rowMeans(real_data[, c("lower_age", "higher_age")]) # create column with the avg age
 
 real_data <- real_data %>% mutate(diabetesMed = ifelse(diabetesMed == "No", 0,1)) # modify diabetesMed to 0/1 instead of Yes/No
+
+
+
+```
+
+```{r}
+data_set_v2 <- read.csv(file = "synt_diabetic_data_ver_2.csv")
+data_set_v2 <- data_set_v2 %>% separate(col = age, into = c("lower_age", "higher_age"), sep = "-")
+
+data_set_v2$lower_age <-as.numeric(sub(".", "", data_set_v2$lower_age)) # split ages 
+data_set_v2$higher_age <- as.numeric(substr(data_set_v2$higher_age, 1, nchar(data_set_v2$higher_age)-1))
+data_set_v2$avg_age <- rowMeans(data_set_v2[, c("lower_age", "higher_age")]) # create column with the avg age
+
 
 
 
@@ -127,8 +143,70 @@ ggplot(data_set, aes(readmitted, fill = insulin)) + geom_bar(position = "fill") 
 
 
 
+```
+
+
+```{r}
+# CORRELATIONS BETWEEN VARIABLES
+
+plotchisqtest(chisq.test(real_data["num_medications"], real_data["readmitted"]))
+plotchisqtest(chisq.test(data_set$num_medications, data_set$readmitted))
+
+### CONSTRUCT A NEW DF WITH P-VALUES BETWEEN EVERY COLUMN IN REAL AND SYNTH DATA
+
+pairs_col <- combn(names(data_set), 2, simplify = F) 
+
+first_col_vec <- c()
+sec_col_vec <- c()
+for(i in pairs_col){
+  first_col_vec <- c(first_col_vec, i[1])
+  sec_col_vec <- c(sec_col_vec, i[2])
+}
+
+
+p_val_df <- data.frame("feature1" = first_col_vec, "feature2" = sec_col_vec)
+
+result_real <- c()
+result_synth <- c()
+for(rownum in c(1:nrow(p_val_df))){
+  col_name_1 <- p_val_df[rownum, 1]
+  col_name_2 <- p_val_df[rownum, 2]
+  #test_real <- chisq.test(real_data[col_name_1][[1]], real_data[col_name_2][[1]])
+  #p_real <- test_real$p.value
+  #result_real <- c(result_real, p_real)
+  
+  
+  test_synth <- chisq.test(data_set[col_name_1][[1]], data_set[col_name_2][[1]])
+  p_synth <- test_synth$p.value
+  result_synth <- c(result_synth, p_synth)
+}
+
+p_val_df <- cbind(p_val_df, result_synth)
+
+
+
+
 
 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
