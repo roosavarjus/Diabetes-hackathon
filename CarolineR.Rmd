@@ -6,9 +6,9 @@ title: "Hackathon"
 ```{r}
 library(tidyverse)
 
-setwd("C:/Users/roosa/Documents/Diabetes-hackathon/data")
-real_data <- read.csv("data/real_data.csv", stringsAsFactors =T, na.strings =  "NA")
-data_set <- read.csv(file = 'data/synthetic_data.csv', stringsAsFactors = T, na.strings = "NA")
+#setwd("C:/Users/roosa/Documents/Diabetes-hackathon/data")
+#real_data <- read.csv("data/real_data.csv", stringsAsFactors =F, na.strings =  "NA")
+#data_set <- read.csv(file = 'data/synthetic_data.csv', stringsAsFactors = F, na.strings = "NA")
 data_set <- data_set[,-c(19,27,29,30,35,36)]
 head(data_set)
 summary(data_set) 
@@ -181,7 +181,43 @@ write_xlsx(p_val_df, "p-values_synthetic_data.xlsx")
 
 ```
 
+```{r}
+# combine readmission = NO and readmission >30
 
+data_set$readmitted[data_set$readmitted == "NO"] <- "otherwise"
+data_set$readmitted[data_set$readmitted == ">30"] <- "otherwise"
+
+real_data$readmitted[real_data$readmitted == "NO"] <- "otherwise"
+real_data$readmitted[real_data$readmitted == ">30"] <- "otherwise"
+
+# create contingency table
+ct <- table(data_set$readmitted, data_set$age, dnn = c("readmission", "age"))
+probs_synth <- t(ct) / colSums(ct)
+
+ct_real <- table(real_data$readmitted, real_data$age, dnn = c("readmission", "age"))
+probs_real <- t(ct_real) / colSums(ct_real)
+
+par(mfrow = c(2,1))
+plot(probs_real)
+plot(probs_synth)
+
+
+
+chisq.test(as.matrix(ct_real))
+chisq.test(as.matrix(ct))
+
+
+
+
+
+data_set = data_set %>% mutate(readmitted.fac = factor(ifelse(readmitted == "<30", "yes", "no")))
+real_data = real_data %>% mutate(readmitted.fac = factor(ifelse(readmitted == "<30", "yes", "no")))
+
+
+synth <-lm(data_set$num_medications~data_set$readmitted.fac)
+lm(real_data$num_medications~real_data$readmitted.fac)
+
+```
 
 
 
