@@ -6,7 +6,8 @@ title: "Hackathon"
 ```{r}
 library(tidyverse)
 
-#setwd("~/Diabetes-Hackathon/data/")
+setwd("C:/Users/roosa/Documents/Diabetes-hackathon/data")
+real_data <- read.csv("data/real_data.csv", stringsAsFactors =T)
 data_set <- read.csv(file = 'data/synthetic_data.csv', na = 'No', stringsAsFactors = T)
 head(data_set)
 summary(data_set) 
@@ -29,6 +30,22 @@ data_set_reformatted$value_numeric <- as.numeric(as.factor(data_set_reformatted)
                                                             
 
 ```
+
+```{r}
+real_data <- read.csv("data/real_data.csv", stringsAsFactors =T)
+
+real_data <- real_data %>% separate(col = age, into = c("lower_age", "higher_age"), sep = "-")
+
+real_data$lower_age <-as.numeric(sub(".", "", real_data$lower_age)) # split ages 
+real_data$higher_age <- as.numeric(substr(real_data$higher_age, 1, nchar(real_data$higher_age)-1))
+real_data$avg_age <- rowMeans(real_data[, c("lower_age", "higher_age")]) # create column with the avg age
+
+real_data <- real_data %>% mutate(diabetesMed = ifelse(diabetesMed == "No", 0,1)) # modify diabetesMed to 0/1 instead of Yes/No
+
+
+
+```
+
 
 ```{r}
 # count how many people take the different medications 
@@ -81,6 +98,35 @@ cluster_by_var(dataset = data_set, cluster_var = "avg_age", vec_of_features = me
 ```
 
 ```{r}
+# FROM MARIDA BUT WITH REAL DATA
+
+real_data %>% group_by(insulin) %>% ggplot() + geom_boxplot(aes(x = insulin,y = time_in_hospital))
+insulins <- real_data %>% filter(insulin != "No")
+ggplot(real_data) + geom_violin(aes(x = insulin, y = num_medications))
+noinsulins <- real_data %>% filter(insulin == "No")
+
+
+insulins %>%
+  keep(is.numeric) %>% 
+  gather() %>% 
+  ggplot(aes(value)) +
+    facet_wrap(~ key, scales = "free") +
+    geom_histogram() + labs(title = "insulins, real data")
+
+noinsulins %>%
+  keep(is.numeric) %>% 
+  gather() %>% 
+  ggplot(aes(value)) +
+    facet_wrap(~ key, scales = "free") +
+    geom_histogram() + labs(title = "non-insulins, real data")
+
+
+#_____________________________
+ggplot(real_data, aes(readmitted, fill = insulin)) + geom_bar(position = "fill")  # readmitted with insulin information --> REAL DATA
+ggplot(data_set, aes(readmitted, fill = insulin)) + geom_bar(position = "fill")  # readmitted with insulin information --> SYNTH DATA
+
+
+
 
 
 ```

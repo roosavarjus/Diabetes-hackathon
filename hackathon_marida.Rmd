@@ -105,7 +105,7 @@ insulins %>%
   gather() %>% 
   ggplot(aes(value)) +
     facet_wrap(~ key, scales = "free") +
-    geom_histogram()
+    geom_histogram() + labs(title = "insulins, synth data")
 
 noinsulins %>%
   keep(is.numeric) %>% 
@@ -113,6 +113,8 @@ noinsulins %>%
   ggplot(aes(value)) +
     facet_wrap(~ key, scales = "free") +
     geom_histogram()
+
+
 ```
 
 
