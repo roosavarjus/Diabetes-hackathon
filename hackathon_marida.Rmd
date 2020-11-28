@@ -8,7 +8,7 @@ This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute
 Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
 
 ```{r}
-#install.packages("GGally")
+install.packages("GGally")
 library(GGally)
 library(dplyr)
 library(ggplot2)
@@ -41,11 +41,9 @@ ggplot(data=diabetes, mapping = aes(x = max_glu_serum, y = time_in_hospital)) +
 ```
 Example of barplot and histogram with categories shown as colours 
 ```{r}
-diabetes <- diabetes %>% filter(readmitted != "NO")
-ggplot(data = diabetes,
-       mapping = aes(x = time_in_hospital, fill = readmitted)) +
-  geom_bar(position = "fill")
-diabetes %>% group_by(race) %>% ggplot + geom_histogram(aes(x = time_in_hospital, fill = race))
+ggplot(data = diabetes, mapping = aes(x = time_in_hospital, fill = readmitted)) +
+  geom_bar()
+diabetes%>%group_by(race)%>%ggplot()+geom_histogram(aes(x=time_in_hospital,fill=race))
 ```
 Plotting all the numerical values
 ```{r}
@@ -58,7 +56,7 @@ diabetes %>%
 ```
 Example of heatmap, in this case uninformative but may be useful later!
 ```{r}
-ggcorr(diabetes, nbreaks = 21)
+ggcorr(diabetes, nbreaks = 2)
 ```
 Example of splitting categorical and numeric data and PCA'ing it. 
 ```{r}
@@ -96,10 +94,69 @@ medications_dataframe
 ```
 
 ```{r}
-split <- splitmix(data_set_reformatted)
-X1 <- split$X.quanti 
-X2 <- split$X.quali 
-res.pcamix <- PCAmix(X.quanti=X1, X.quali=X2,rename.level=TRUE,
-                     graph=TRUE)
+diabetes%>%group_by(insulin)%>%ggplot()+geom_boxplot(aes(x=insulin,y=time_in_hospital))
+insulins <- diabetes%>%filter(insulin!="No")
+ggplot(diabetes)+geom_violin(aes(x=insulin,y=num_medications))
+noinsulins <- diabetes%>%filter(insulin=="No")
+
+
+insulins %>%
+  keep(is.numeric) %>% 
+  gather() %>% 
+  ggplot(aes(value)) +
+    facet_wrap(~ key, scales = "free") +
+    geom_histogram()
+
+noinsulins %>%
+  keep(is.numeric) %>% 
+  gather() %>% 
+  ggplot(aes(value)) +
+    facet_wrap(~ key, scales = "free") +
+    geom_histogram()
 ```
+
+
+
+
+```{r}
+readmitted = c("NO", "<30", ">30")
+#convert to class factor with the order define by the levels option
+table(diabetes$readmitted)
+
+levels(diabetes$readmitted) <- c(2,3,1)
+levels(diabetes$readmitted)
+diabetes <- mutate(diabetes,readmitted_rank=diabetes$readmitted)
+table(diabetes$readmitted) #converted readmitted to ranks which reflect the actual value
+ggplot(diabetes)+geom_jitter(aes(x=insulin,y=readmitted,col=metformin,alpha=0.1))
+ggplot(diabetes)+geom_tile(aes(x=insulin,y=as.numeric(readmitted),fill=metformin,alpha=0.1))
+ggplot(diabetes)+geom_tile(aes(x=insulin,fill=as.numeric(readmitted),y=metformin))+scale_color_brewer(palette=3)
+newlevels=c("No","Down","Steady","Up")
+diabetes$metformin <- factor(diabetes$metformin,levels = newlevels)
+diabetes$insulin <- factor(diabetes$insulin,levels = newlevels)
+diabetes$glyburide <- factor(diabetes$glyburide,levels = newlevels)
+diabetes$glipizide <- factor(diabetes$glipizide,levels = newlevels)
+diabetes$glimepiride <- factor(diabetes$glimepiride,levels = newlevels)
+
+
+library(viridis)
+p1 <- ggplot(diabetes)+geom_tile(aes(x=insulin,fill=as.numeric(readmitted),y=metformin))+scale_fill_viridis()+ theme(legend.position = "none")
+p2 <- ggplot(diabetes)+geom_tile(aes(x=insulin,fill=as.numeric(readmitted),y=glyburide))+scale_fill_viridis()+ theme(legend.position = "none")
+p3 <- ggplot(diabetes)+geom_tile(aes(x=insulin,fill=as.numeric(readmitted),y=glipizide))+scale_fill_viridis()+ theme(legend.position = "none")
+p4 <- ggplot(diabetes)+geom_tile(aes(x=insulin,fill=as.numeric(readmitted),y=glimepiride))+scale_fill_viridis()+ theme(legend.position = "none")
+library(gridExtra)
+grid.arrange(p1, p2, p3,p4, nrow = 4)
+```
+  
+
+```{r}
+#ggplot(diabetes)+geom_jitter(aes(x=insulin,y=as.numeric(readmitted)))+scale_fill_viridis()+labs(title = "",
+#       y = "glimepiride", x = "insulin") + 
+#  facet_wrap(~ gender + race) 
+```
+
+
+
+
+
+
 
