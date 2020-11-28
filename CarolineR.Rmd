@@ -6,8 +6,10 @@ title: "Hackathon"
 ```{r}
 library(tidyverse)
 
-#setwd("~/Diabetes-Hackathon/data/")
-data_set <- read.csv(file = 'data/synthetic_data.csv', na = 'No', stringsAsFactors = T)
+#setwd("C:/Users/roosa/Documents/Diabetes-hackathon/data")
+#real_data <- read.csv("data/real_data.csv", stringsAsFactors =F, na.strings =  "NA")
+#data_set <- read.csv(file = 'data/synthetic_data.csv', stringsAsFactors = F, na.strings = "NA")
+data_set <- data_set[,-c(19,27,29,30,35,36)]
 head(data_set)
 summary(data_set) 
 medication_list <- c(colnames(data_set)[14:36])
@@ -18,17 +20,48 @@ data_set$lower_age <-as.numeric(sub(".", "", data_set$lower_age)) # split ages
 data_set$higher_age <- as.numeric(substr(data_set$higher_age, 1, nchar(data_set$higher_age)-1))
 data_set$avg_age <- rowMeans(data_set[, c("lower_age", "higher_age")]) # create column with the avg age
 
-data_set <- data_set %>% mutate(diabetesMed = ifelse(diabetesMed == "No", 0,1)) # modify diabetesMed to 0/1 instead of Yes/No
+#data_set <- data_set %>% mutate(diabetesMed = ifelse(diabetesMed == "No", 0,1)) # modify diabetesMed to 0/1 instead of Yes/No
+is.na(data_set$diabetesMed) <- 0
 
 data_set_reformatted <- gather(data_set, medication, value, metformin:metformin.pioglitazone, na.rm = TRUE)
    #  na.rm = FALSE, convert = FALSE 
 
 head(data_set_reformatted)  
 
-data_set_reformatted$value_numeric <- as.numeric(as.factor(data_set_reformatted$value))
+data_set_reformatted$value_numeric <- as.numeric(as.factor(data_set_reformatted))
                                                             
 
 ```
+
+```{r}
+real_data <- read.csv("data/real_data.csv", stringsAsFactors =T)
+# real_data <- real_data[,-c(27,29,30,34,35,36)]
+
+real_data <- real_data %>% separate(col = age, into = c("lower_age", "higher_age"), sep = "-")
+
+real_data$lower_age <-as.numeric(sub(".", "", real_data$lower_age)) # split ages 
+real_data$higher_age <- as.numeric(substr(real_data$higher_age, 1, nchar(real_data$higher_age)-1))
+real_data$avg_age <- rowMeans(real_data[, c("lower_age", "higher_age")]) # create column with the avg age
+
+real_data <- real_data %>% mutate(diabetesMed = ifelse(diabetesMed == "No", 0,1)) # modify diabetesMed to 0/1 instead of Yes/No
+
+
+
+```
+
+```{r}
+data_set_v2 <- read.csv(file = "synt_diabetic_data_ver_2.csv")
+data_set_v2 <- data_set_v2 %>% separate(col = age, into = c("lower_age", "higher_age"), sep = "-")
+
+data_set_v2$lower_age <-as.numeric(sub(".", "", data_set_v2$lower_age)) # split ages 
+data_set_v2$higher_age <- as.numeric(substr(data_set_v2$higher_age, 1, nchar(data_set_v2$higher_age)-1))
+data_set_v2$avg_age <- rowMeans(data_set_v2[, c("lower_age", "higher_age")]) # create column with the avg age
+
+
+
+
+```
+
 
 ```{r}
 # count how many people take the different medications 
@@ -62,22 +95,144 @@ glucose_in_serum <- data_set_reformatted %>% filter(max_glu_serum == ">200" | ma
  
 ```
 
+
+
 ```{r}
-cluster_by_var <- function(dataset = data_set_reformatted, cluster_var, vec_of_features){
-  data <- dataset %>% select(cluster_var, vec_of_features)
-  data[is.na(data)] <- 0
-  mat <- as.matrix(t(data))
-  d <- dist(mat, method = "euclidean")
-  hclust(d, method = "complete")
-  
-  
+# FROM MARIDA BUT WITH REAL DATA
+
+real_data %>% group_by(insulin) %>% ggplot() + geom_boxplot(aes(x = insulin,y = time_in_hospital))
+insulins <- real_data %>% filter(insulin != "No")
+ggplot(real_data) + geom_violin(aes(x = insulin, y = num_medications))
+noinsulins <- real_data %>% filter(insulin == "No")
+
+
+insulins %>%
+  keep(is.numeric) %>% 
+  gather() %>% 
+  ggplot(aes(value)) +
+    facet_wrap(~ key, scales = "free") +
+    geom_histogram() + labs(title = "insulins, real data")
+
+noinsulins %>%
+  keep(is.numeric) %>% 
+  gather() %>% 
+  ggplot(aes(value)) +
+    facet_wrap(~ key, scales = "free") +
+    geom_histogram() + labs(title = "non-insulins, real data")
+
+
+#_____________________________
+ggplot(real_data, aes(readmitted, fill = insulin)) + geom_bar(position = "fill")  # readmitted with insulin information --> REAL DATA
+ggplot(data_set, aes(readmitted, fill = insulin)) + geom_bar(position = "fill")  # readmitted with insulin information --> SYNTH DATA
+
+
+
+```
+
+
+```{r}
+# CORRELATIONS BETWEEN VARIABLES
+
+plotchisqtest(chisq.test(real_data["num_medications"], real_data["readmitted"]))
+plotchisqtest(chisq.test(data_set$num_medications, data_set$readmitted))
+
+### CONSTRUCT A NEW DF WITH P-VALUES BETWEEN EVERY COLUMN IN REAL AND SYNTH DATA
+
+for (i in seq(14,30)) {
+  data_set[, i] <- as.numeric(car::recode(data_set[, i], "'No'=0; 'Down'=1; 'Steady'=2; 'Up'=3"))
 }
-cluster_by_var(dataset = data_set, cluster_var = "avg_age", vec_of_features = medication_list)
+
+
+
+pairs_col <- combn(names(data_set), 2, simplify = F) 
+
+first_col_vec <- c()
+sec_col_vec <- c()
+for(i in pairs_col){
+  first_col_vec <- c(first_col_vec, i[1])
+  sec_col_vec <- c(sec_col_vec, i[2])
+}
+
+
+p_val_df <- data.frame("feature1" = first_col_vec, "feature2" = sec_col_vec)
+
+result_real <- c()
+result_synth <- c()
+for(rownum in c(1:nrow(p_val_df))){
+  col_name_1 <- p_val_df[rownum, 1]
+  col_name_2 <- p_val_df[rownum, 2]
+  
+  # test_real <- chisq.test(real_data[col_name_1][[1]], real_data[col_name_2][[1]])
+  # p_real <- test_real$p.value
+  # result_real <- c(result_real, p_real)
+  # 
+  
+  test_synth <- chisq.test(data_set[col_name_1][[1]], data_set[col_name_2][[1]])
+  p_synth <- test_synth$p.value
+  result_synth <- c(result_synth, p_synth)
+}
+
+p_val_df <- cbind(p_val_df, result_synth)
+
+write_xlsx(p_val_df, "p-values_synthetic_data.xlsx")
 
 
 
 
 ```
+
+```{r}
+# combine readmission = NO and readmission >30
+
+data_set$readmitted[data_set$readmitted == "NO"] <- "otherwise"
+data_set$readmitted[data_set$readmitted == ">30"] <- "otherwise"
+
+real_data$readmitted[real_data$readmitted == "NO"] <- "otherwise"
+real_data$readmitted[real_data$readmitted == ">30"] <- "otherwise"
+
+# create contingency table
+ct <- table(data_set$readmitted, data_set$age, dnn = c("readmission", "age"))
+probs_synth <- t(ct) / colSums(ct)
+
+ct_real <- table(real_data$readmitted, real_data$age, dnn = c("readmission", "age"))
+probs_real <- t(ct_real) / colSums(ct_real)
+
+par(mfrow = c(2,1))
+plot(probs_real)
+plot(probs_synth)
+
+
+
+chisq.test(as.matrix(ct_real))
+chisq.test(as.matrix(ct))
+
+
+
+
+
+data_set = data_set %>% mutate(readmitted.fac = factor(ifelse(readmitted == "<30", "yes", "no")))
+real_data = real_data %>% mutate(readmitted.fac = factor(ifelse(readmitted == "<30", "yes", "no")))
+
+
+synth <-lm(data_set$num_medications~data_set$readmitted.fac)
+lm(real_data$num_medications~real_data$readmitted.fac)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
