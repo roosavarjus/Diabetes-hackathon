@@ -42,28 +42,19 @@ medications_dataframe
 
 ```
 
-What are the most important factors for hospital readmission? 
+
 ```{r}
 
 early_readmission <- data_set_reformatted %>% filter(readmitted  == "<30")
-readmitted <- data_set_reformatted %>% filter(readmitted == "<30" | readmitted == ">30")
+readmitted_data <- data_set_reformatted %>% filter(readmitted == "<30" | readmitted == ">30")
 
 # distributions of ages in different readmission times
-ggplot(data_set_reformatted, aes(avg_age)) + geom_bar() + facet_grid(readmitted)
+ggplot(glucose_in_serum, aes(lower_age, fill = max_glu_serum)) + geom_bar(position = "dodge") +
+  scale_x_continuous()
+
+glucose_in_serum <- data_set_reformatted %>% filter(max_glu_serum == ">200" | max_glu_serum == ">300" | max_glu_serum == "Norm")
 
 
 
  
 ```
-
-
-Is the best cure insulin or a combination of drugs?  
-```{r}
-insulin_takers <- data_set %>% filter(insulin  == !NA)
-insulin_takers
-combination_takers <- data_set %>% filter(insulin = NA)
-
-combination_takers
-```
-
-
